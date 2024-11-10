@@ -1,4 +1,4 @@
-module google.golang.org/grpc
+module github.com/LikhithST/grpc-go
 
 go 1.22.7
 
