@@ -33,6 +33,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/harkaitz/go-faketime"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
@@ -1220,7 +1221,7 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 		}
 		var statsBegin *stats.Begin
 		for _, sh := range shs {
-			beginTime := time.Now()
+			beginTime := ftime.Now()
 			statsBegin = &stats.Begin{
 				BeginTime:      beginTime,
 				IsClientStream: false,
@@ -1253,7 +1254,7 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 			for _, sh := range shs {
 				end := &stats.End{
 					BeginTime: statsBegin.BeginTime,
-					EndTime:   time.Now(),
+					EndTime:   ftime.Now(),
 				}
 				if err != nil && err != io.EOF {
 					end.Error = toRPCErr(err)
@@ -1370,7 +1371,7 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 
 		for _, sh := range shs {
 			sh.HandleRPC(ctx, &stats.InPayload{
-				RecvTime:         time.Now(),
+				RecvTime:         ftime.Now(),
 				Payload:          v,
 				Length:           d.Len(),
 				WireLength:       payInfo.compressedLength + headerLen,
@@ -1548,7 +1549,7 @@ func (s *Server) processStreamingRPC(ctx context.Context, t transport.ServerTran
 	shs := s.opts.statsHandlers
 	var statsBegin *stats.Begin
 	if len(shs) != 0 {
-		beginTime := time.Now()
+		beginTime := ftime.Now()
 		statsBegin = &stats.Begin{
 			BeginTime:      beginTime,
 			IsClientStream: sd.ClientStreams,
@@ -1588,7 +1589,7 @@ func (s *Server) processStreamingRPC(ctx context.Context, t transport.ServerTran
 			if len(shs) != 0 {
 				end := &stats.End{
 					BeginTime: statsBegin.BeginTime,
-					EndTime:   time.Now(),
+					EndTime:   ftime.Now(),
 				}
 				if err != nil && err != io.EOF {
 					end.Error = toRPCErr(err)

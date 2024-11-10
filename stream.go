@@ -28,6 +28,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/harkaitz/go-faketime"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/encoding"
@@ -1146,7 +1147,7 @@ func (a *csAttempt) recvMsg(m any, payInfo *payloadInfo) (err error) {
 	for _, sh := range a.statsHandlers {
 		sh.HandleRPC(a.ctx, &stats.InPayload{
 			Client:           true,
-			RecvTime:         time.Now(),
+			RecvTime:         ftime.Now(),
 			Payload:          m,
 			WireLength:       payInfo.compressedLength + headerLen,
 			CompressedLength: payInfo.compressedLength,
@@ -1204,7 +1205,7 @@ func (a *csAttempt) finish(err error) {
 		end := &stats.End{
 			Client:    true,
 			BeginTime: a.beginTime,
-			EndTime:   time.Now(),
+			EndTime:   ftime.Now(),
 			Trailer:   tr,
 			Error:     err,
 		}
@@ -1791,7 +1792,7 @@ func (ss *serverStream) RecvMsg(m any) (err error) {
 	if len(ss.statsHandler) != 0 {
 		for _, sh := range ss.statsHandler {
 			sh.HandleRPC(ss.s.Context(), &stats.InPayload{
-				RecvTime:         time.Now(),
+				RecvTime:         ftime.Now(),
 				Payload:          m,
 				Length:           payInfo.uncompressedBytes.Len(),
 				WireLength:       payInfo.compressedLength + headerLen,
